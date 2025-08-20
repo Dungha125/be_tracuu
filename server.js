@@ -971,7 +971,13 @@ app.post('/api/tra-cuu', async (req, res) => {
       if (isMatch) {
         // Trường hợp MSV khớp và tên khớp (hoặc không điền tên)
         if (foundByMsv.ghiChu && foundByMsv.ghiChu.includes('Sai mã SV')) {
-          resultMessage = `Bạn không được nhận vé vì điền sai mã sinh viên. Mã bạn điền trong đơn là ${foundByMsv.msv}.`;
+          resultMessage = `Bạn không được nhận vé vì điền sai thông tin.`;
+          results.push({
+            hoTen: foundByMsv.hoTen,
+            lopDB: foundByMsv.lopDB,
+            diCa: foundByMsv.diCa,
+            ghiChu: foundByMsv.ghiChu,
+          });
         } else {
           resultMessage = 'Chúc mừng, bạn có trong danh sách vé!';
           results.push({
