@@ -968,7 +968,7 @@ app.post('/api/tra-cuu', async (req, res) => {
       // MSV khớp, nhưng tên không khớp
       result = {
         status: 'error',
-        message: `Bạn không được nhận vé vì điền sai họ và tên. Tên trong đơn là ${hoTen}.`,
+        message: `Bạn không được nhận vé vì điền sai thông tin`,
       };
     } else if (foundByMsv.ghiChu.includes('Sai mã SV')) {
       // Tên và MSV khớp, nhưng cột ghi chú báo lỗi
