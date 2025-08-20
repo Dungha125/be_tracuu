@@ -951,33 +951,41 @@ app.post('/api/tra-cuu', async (req, res) => {
   // 2. Thực hiện logic tra cứu
   const cleanedMsv = msv.trim().toUpperCase();
   const cleanedHoTen = hoTen.trim().toLowerCase();
-  
-  // Tìm sinh viên bằng MSV trước
+
+  // Tìm sinh viên trong danh sách bằng MSV trước
+  // Sử dụng find() sẽ dừng ngay khi tìm thấy kết quả đầu tiên
   const foundByMsv = danhSachSinhVien.find(
     (sinhVien) => sinhVien.msv.trim().toUpperCase() === cleanedMsv
   );
 
-  let result = {
-    status: 'error',
-    message: 'Xin lỗi, thông tin không có trong danh sách.',
-  };
+  let result;
 
-  if (foundByMsv) {
-    // Nếu tìm thấy MSV, kiểm tra xem tên có khớp không
-    if (foundByMsv.hoTen.trim().toLowerCase() !== cleanedHoTen) {
-      // MSV khớp, nhưng tên không khớp
+  // Bước 1: Kiểm tra xem MSV có tồn tại trong danh sách hay không
+  if (!foundByMsv) {
+    // Trường hợp 1: MSV không khớp
+    result = {
+      status: 'error',
+      message: 'Xin lỗi, thông tin không có trong danh sách.',
+    };
+  } else {
+    // Bước 2: Nếu tìm thấy MSV, kiểm tra tiếp các điều kiện khác
+    // So sánh họ tên (chuẩn hóa về chữ thường để so sánh không phân biệt hoa/thường)
+    const isNameMatch = foundByMsv.hoTen.trim().toLowerCase() === cleanedHoTen;
+
+    if (!isNameMatch) {
+      // Trường hợp 2: MSV khớp, nhưng Họ tên sai
       result = {
         status: 'error',
         message: `Bạn không được nhận vé vì điền sai thông tin`,
       };
-    } else if (foundByMsv.ghiChu.includes('Sai mã SV')) {
-      // Tên và MSV khớp, nhưng cột ghi chú báo lỗi
+    } else if (foundByMsv.ghiChu && foundByMsv.ghiChu.includes('Sai mã SV')) {
+      // Trường hợp 3: MSV và Họ tên khớp, nhưng có lỗi ở cột Ghi chú
       result = {
         status: 'error',
         message: `Bạn không được nhận vé vì điền sai mã sinh viên. Mã bạn điền trong đơn là ${foundByMsv.msv}.`,
       };
     } else {
-      // Mọi thứ đều chính xác, trả về thông tin vé
+      // Trường hợp 4: Mọi thứ đều chính xác
       result = {
         status: 'success',
         message: 'Chúc mừng, bạn có trong danh sách vé!',
@@ -990,10 +998,6 @@ app.post('/api/tra-cuu', async (req, res) => {
     }
   }
 
+  // Gửi kết quả JSON về cho client
   res.json(result);
-});
-
-
-app.listen(port, () => {
-  console.log(`Backend API listening at http://localhost:${port}`);
 });
