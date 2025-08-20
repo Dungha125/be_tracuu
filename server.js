@@ -952,9 +952,9 @@ app.post('/api/tra-cuu', async (req, res) => {
   const cleanedMsv = msv.trim().toUpperCase();
   const cleanedHoTen = hoTen.trim().toLowerCase();
   
-  // Tìm tất cả các sinh viên có tên khớp
-  const foundByHoTen = danhSachSinhVien.filter(
-    (sinhVien) => sinhVien.hoTen.trim().toLowerCase() === cleanedHoTen
+  // Tìm sinh viên bằng MSV trước
+  const foundByMsv = danhSachSinhVien.find(
+    (sinhVien) => sinhVien.msv.trim().toUpperCase() === cleanedMsv
   );
 
   let result = {
@@ -962,42 +962,37 @@ app.post('/api/tra-cuu', async (req, res) => {
     message: 'Xin lỗi, thông tin không có trong danh sách.',
   };
 
-  if (foundByHoTen.length > 0) {
-    // Nếu có tên khớp, tìm sinh viên có MSV khớp
-    const foundByMsv = foundByHoTen.find(
-      (sinhVien) => sinhVien.msv.trim().toUpperCase() === cleanedMsv
-    );
-
-    if (foundByMsv) {
-      // Tên và MSV đều khớp, giờ kiểm tra ghi chú
-      if (foundByMsv.ghiChu.includes('Sai mã SV')) {
-        result = {
-          status: 'error',
-          message: `Bạn không được nhận vé vì điền sai mã sinh viên. Mã bạn điền trong đơn là ${foundByMsv.msv}.`,
-        };
-      } else {
-        // Mọi thứ đều chính xác, trả về thông tin vé
-        result = {
-          status: 'success',
-          message: 'Chúc mừng, bạn có trong danh sách vé!',
-          sinhVien: {
-            hoTen: foundByMsv.hoTen,
-            lopDB: foundByMsv.lopDB,
-            diCa: foundByMsv.diCa,
-          },
-        };
-      }
-    } else {
-      // Tìm thấy tên nhưng không có MSV khớp
+  if (foundByMsv) {
+    // Nếu tìm thấy MSV, kiểm tra xem tên có khớp không
+    if (foundByMsv.hoTen.trim().toLowerCase() !== cleanedHoTen) {
+      // MSV khớp, nhưng tên không khớp
       result = {
         status: 'error',
-        message: `Không có ${foundByMsv.hoTen} với mã sinh viên: ${foundByMsv}. Vui lòng kiểm tra lại`,
+        message: `Bạn không được nhận vé vì điền sai họ và tên. Tên trong đơn là ${hoTen}.`,
+      };
+    } else if (foundByMsv.ghiChu.includes('Sai mã SV')) {
+      // Tên và MSV khớp, nhưng cột ghi chú báo lỗi
+      result = {
+        status: 'error',
+        message: `Bạn không được nhận vé vì điền sai mã sinh viên. Mã bạn điền trong đơn là ${foundByMsv.msv}.`,
+      };
+    } else {
+      // Mọi thứ đều chính xác, trả về thông tin vé
+      result = {
+        status: 'success',
+        message: 'Chúc mừng, bạn có trong danh sách vé!',
+        sinhVien: {
+          hoTen: foundByMsv.hoTen,
+          lopDB: foundByMsv.lopDB,
+          diCa: foundByMsv.diCa,
+        },
       };
     }
   }
 
   res.json(result);
 });
+
 
 app.listen(port, () => {
   console.log(`Backend API listening at http://localhost:${port}`);
