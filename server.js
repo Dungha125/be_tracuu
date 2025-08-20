@@ -975,6 +975,7 @@ app.post('/api/tra-cuu', async (req, res) => {
             hoTen: foundByMsv.hoTen,
             lopDB: foundByMsv.lopDB,
             diCa: foundByMsv.diCa,
+            ghiChu: foundByMsv.ghiChu
           });
         }
       } else {
