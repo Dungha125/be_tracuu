@@ -1001,3 +1001,9 @@ app.post('/api/tra-cuu', async (req, res) => {
   // Gửi kết quả JSON về cho client
   res.json(result);
 });
+
+
+
+app.listen(port, () => {
+  console.log(`Backend API listening at http://localhost:${port}`);
+});
