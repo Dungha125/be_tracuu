@@ -995,7 +995,7 @@ app.post('/api/tra-cuu', async (req, res) => {
         hoTen: sinhVien.hoTen,
         lopDB: sinhVien.lopDB,
         diCa: sinhVien.diCa,
-        ghiChu: foundByMsv.ghiChu,
+        ghiChu: sinhVien.ghiChu,
       }));
     }
   }
