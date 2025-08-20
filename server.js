@@ -964,9 +964,12 @@ app.post('/api/tra-cuu', async (req, res) => {
     );
 
     if (foundByMsv) {
-      // Nếu tìm thấy MSV, kiểm tra xem tên có khớp không
-      if (foundByMsv.hoTen.trim().toLowerCase() === cleanedHoTen) {
-        // MSV và tên đều khớp
+      // Logic mới: Cho phép tra cứu chỉ bằng MSV hoặc kết hợp cả MSV và Họ tên
+      // Kiểm tra xem tên có khớp không, HOẶC nếu họ tên không được điền
+      const isMatch = cleanedHoTen === '' || foundByMsv.hoTen.trim().toLowerCase() === cleanedHoTen;
+
+      if (isMatch) {
+        // Trường hợp MSV khớp và tên khớp (hoặc không điền tên)
         if (foundByMsv.ghiChu && foundByMsv.ghiChu.includes('Sai mã SV')) {
           resultMessage = `Bạn không được nhận vé vì điền sai mã sinh viên. Mã bạn điền trong đơn là ${foundByMsv.msv}.`;
         } else {
@@ -979,7 +982,7 @@ app.post('/api/tra-cuu', async (req, res) => {
           });
         }
       } else {
-        // MSV khớp, nhưng tên không khớp
+        // MSV khớp, nhưng Họ tên không khớp
         resultMessage = `Bạn không được nhận vé vì điền sai thông tin`;
       }
     }
