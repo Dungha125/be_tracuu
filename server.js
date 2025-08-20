@@ -951,34 +951,52 @@ app.post('/api/tra-cuu', async (req, res) => {
   // 2. Thực hiện logic tra cứu
   const cleanedMsv = msv.trim().toUpperCase();
   const cleanedHoTen = hoTen.trim().toLowerCase();
-
-  const foundByHoTen = danhSachSinhVien.find(
+  
+  // Tìm tất cả các sinh viên có tên khớp
+  const foundByHoTen = danhSachSinhVien.filter(
     (sinhVien) => sinhVien.hoTen.trim().toLowerCase() === cleanedHoTen
   );
 
-  if (foundByHoTen) {
-    if (foundByHoTen.msv.trim().toUpperCase() !== cleanedMsv || foundByHoTen.ghiChu.includes('Sai mã SV')) {
-      res.json({
-        status: 'error',
-        message: `Bạn không được nhận vé vì điền sai mã sinh viên. Mã bạn điền trong đơn là ${foundByHoTen.msv}.`,
-      });
+  let result = {
+    status: 'error',
+    message: 'Xin lỗi, thông tin không có trong danh sách.',
+  };
+
+  if (foundByHoTen.length > 0) {
+    // Nếu có tên khớp, tìm sinh viên có MSV khớp
+    const foundByMsv = foundByHoTen.find(
+      (sinhVien) => sinhVien.msv.trim().toUpperCase() === cleanedMsv
+    );
+
+    if (foundByMsv) {
+      // Tên và MSV đều khớp, giờ kiểm tra ghi chú
+      if (foundByMsv.ghiChu.includes('Sai mã SV')) {
+        result = {
+          status: 'error',
+          message: `Bạn không được nhận vé vì điền sai mã sinh viên. Mã bạn điền trong đơn là ${foundByMsv.msv}.`,
+        };
+      } else {
+        // Mọi thứ đều chính xác, trả về thông tin vé
+        result = {
+          status: 'success',
+          message: 'Chúc mừng, bạn có trong danh sách vé!',
+          sinhVien: {
+            hoTen: foundByMsv.hoTen,
+            lopDB: foundByMsv.lopDB,
+            diCa: foundByMsv.diCa,
+          },
+        };
+      }
     } else {
-      res.json({
-        status: 'success',
-        message: 'Chúc mừng, bạn có trong danh sách vé!',
-        sinhVien: {
-          hoTen: foundByHoTen.hoTen,
-          lopDB: foundByHoTen.lopDB,
-          diCa: foundByHoTen.diCa,
-        },
-      });
+      // Tìm thấy tên nhưng không có MSV khớp
+      result = {
+        status: 'error',
+        message: `Bạn không được nhận vé vì điền sai mã sinh viên. Mã bạn điền trong đơn là ${cleanedMsv}.`,
+      };
     }
-  } else {
-    res.json({
-      status: 'error',
-      message: 'Xin lỗi, thông tin không có trong danh sách.',
-    });
   }
+
+  res.json(result);
 });
 
 app.listen(port, () => {
