@@ -991,7 +991,7 @@ app.post('/api/tra-cuu', async (req, res) => {
         }
       } else {
         // MSV khớp, nhưng Họ tên không khớp
-        resultMessage = `Bạn không được nhận vé vì điền sai thông tin`;
+        resultMessage = `Vui lòng kiểm tra lại`;
       }
     }
   } else if (cleanedHoTen) {
