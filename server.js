@@ -991,7 +991,7 @@ app.post('/api/tra-cuu', async (req, res) => {
       // Tìm thấy tên nhưng không có MSV khớp
       result = {
         status: 'error',
-        message: `Bạn không được nhận vé vì điền sai mã sinh viên. Mã bạn điền trong đơn là ${cleanedMsv}.`,
+        message: `Không có ${foundByMsv.hoTen} với mã sinh viên: ${foundByMsv.msv}. Vui lòng kiểm tra lại`,
       };
     }
   }
