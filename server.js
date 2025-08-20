@@ -974,6 +974,7 @@ app.post('/api/tra-cuu', async (req, res) => {
           resultMessage = `Bạn không được nhận vé vì điền sai thông tin.`;
           results.push({
             hoTen: foundByMsv.hoTen,
+            msv: foundByMsv.msv,
             lopDB: foundByMsv.lopDB,
             diCa: foundByMsv.diCa,
             ghiChu: foundByMsv.ghiChu,
@@ -982,6 +983,7 @@ app.post('/api/tra-cuu', async (req, res) => {
           resultMessage = 'Chúc mừng, bạn có trong danh sách vé!';
           results.push({
             hoTen: foundByMsv.hoTen,
+            msv: foundByMsv.msv,
             lopDB: foundByMsv.lopDB,
             diCa: foundByMsv.diCa,
             ghiChu: foundByMsv.ghiChu,
@@ -1002,6 +1004,7 @@ app.post('/api/tra-cuu', async (req, res) => {
       resultMessage = `Tìm thấy ${foundByName.length} kết quả phù hợp.`;
       results = foundByName.map(sinhVien => ({
         hoTen: sinhVien.hoTen,
+        msv: sinhVien.msv,
         lopDB: sinhVien.lopDB,
         diCa: sinhVien.diCa,
         ghiChu: sinhVien.ghiChu,
