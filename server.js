@@ -975,7 +975,7 @@ app.post('/api/tra-cuu', async (req, res) => {
             hoTen: foundByMsv.hoTen,
             lopDB: foundByMsv.lopDB,
             diCa: foundByMsv.diCa,
-            ghiChu: foundByMsv.ghiChu
+            ghiChu: foundByMsv.ghiChu,
           });
         }
       } else {
@@ -995,6 +995,7 @@ app.post('/api/tra-cuu', async (req, res) => {
         hoTen: sinhVien.hoTen,
         lopDB: sinhVien.lopDB,
         diCa: sinhVien.diCa,
+        ghiChu: foundByMsv.ghiChu,
       }));
     }
   }
