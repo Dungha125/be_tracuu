@@ -920,27 +920,27 @@ const danhSachSinhVien = [
   { hoTen: 'Nguyễn Quang Hưng', msv: 'B23DCDK061', sdt: '0376894869', diCa: '15h30', tenDB: 'Nguyễn Quang Hưng', lopDB: 'D23CQDK01-B', ghiChu: '' },
 ];
 
-  app.use(bodyParser.json());
+const app = express();
+const port = process.env.PORT || 3001;
 
-// Middleware để cho phép CORS từ ứng dụng React của bạn (nếu chạy ở port khác)
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // Thay đổi nếu cần
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
+app.use(bodyParser.json());
+app.use(cors());
 
 app.post('/api/tra-cuu', async (req, res) => {
   const { msv, hoTen, recaptchaToken } = req.body;
 
   // 1. Xác thực reCAPTCHA
-  const recaptchaSecretKey = '6LfvEawrAAAAADC4VqiBskA6WIDIAPvOepKQauxt';
-  const recaptchaVerifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${recaptchaSecretKey}&response=${recaptchaToken}`;
+  if (!recaptchaToken) {
+    return res.status(400).json({ status: 'error', message: 'Token reCAPTCHA không hợp lệ.' });
+  }
+
+  const recaptchaVerifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`;
 
   try {
     const recaptchaResponse = await fetch(recaptchaVerifyUrl, { method: 'POST' });
     const recaptchaData = await recaptchaResponse.json();
 
-    if (!recaptchaData.success || recaptchaData.score < 0.5) { // Kiểm tra score
+    if (!recaptchaData.success || recaptchaData.score < 0.5) {
       return res.status(400).json({ status: 'error', message: 'Xác thực reCAPTCHA thất bại, vui lòng thử lại.' });
     }
   } catch (error) {
@@ -948,7 +948,7 @@ app.post('/api/tra-cuu', async (req, res) => {
     return res.status(500).json({ status: 'error', message: 'Lỗi xác thực reCAPTCHA.' });
   }
 
-  // 2. Thực hiện logic tra cứu sau khi reCAPTCHA thành công
+  // 2. Thực hiện logic tra cứu
   const cleanedMsv = msv.trim().toUpperCase();
   const cleanedHoTen = hoTen.trim().toLowerCase();
 
@@ -960,7 +960,7 @@ app.post('/api/tra-cuu', async (req, res) => {
     if (foundByHoTen.msv.trim().toUpperCase() !== cleanedMsv || foundByHoTen.ghiChu.includes('Sai mã SV')) {
       res.json({
         status: 'error',
-        message: `Bạn không được nhận vé vì điền sai mã sinh viên. Mã bạn điền trong đơn là ${cleanedMsv}.`,
+        message: `Bạn không được nhận vé vì điền sai mã sinh viên. Mã bạn điền trong đơn là ${foundByHoTen.msv}.`,
       });
     } else {
       res.json({
